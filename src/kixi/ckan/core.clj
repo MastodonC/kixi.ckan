@@ -7,7 +7,8 @@
 (defprotocol ClientSession
   (-package-list [this])
   (-package-show [this id])
-  (-package-new [this dataset]))
+  (-package-new [this dataset])
+  (-datastore-search [this id]))
 
 (defrecord CkanClientSession [opts]
   component/Lifecycle
@@ -53,7 +54,18 @@
                         :accept :json}))
         (catch Throwable t
           (log/errorf t "Could not get the names of the site's datasets")
-          (throw t))))))
+          (throw t)))))
+  (-datastore-search [this id]
+    (let [url (str (-> this :ckan-client-session :site)
+                   "datastore_search?resource_id="id)]
+      (try
+        (let [result (-> (client/get url
+                                     {:content-type :json
+                                      :accept :json})
+                         :body
+                         (json/read-str :key-fn keyword)
+                         :result)]
+          result)))))
 
 (defn new-ckan-client-session [opts]
   (->CkanClientSession opts))
@@ -72,3 +84,8 @@
   "Create a new dataset (package)."
   [session dataset]
   (-package-new session dataset))
+
+(defn datastore-search
+  "Return data using Data API"
+  [session id]
+  (-datastore-search session id))
