@@ -4,16 +4,16 @@
             [clojure.tools.logging :as log]
             [clojure.data.json :as json]))
 
-;; url to be stored in session: http://<site_name>.ckan.org/api/3/action/
-
 (defprotocol ClientSession
-  (-package-list [this]))
+  (-package-list [this])
+  (-package-show [this id])
+  (-package-new [this dataset]))
 
 (defrecord CkanClientSession [opts]
   component/Lifecycle
   (start [this]
-    ;; TODO authentication
-    (assoc this :ckan-client-session {:site (:site opts)}))
+    (assoc this :ckan-client-session {:site (:site opts)
+                                      :api-key (:api-key opts)}))
   (stop [this]
     (dissoc this :ckan-client-session))
   ClientSession
@@ -30,6 +30,29 @@
           result)
         (catch Throwable t
           (log/errorf t "Could not get the names of the site's datasets")
+          (throw t)))))
+  (-package-show [this id]
+    (let [url (str (-> this :ckan-client-session :site) "package_show?id="id)]
+      (try
+        (let [result (-> (client/get url
+                                     {:content-type :json
+                                      :accept :json})
+                         :body
+                         (json/read-str :key-fn keyword)
+                         :result)]
+          result))))
+  (-package-new [this dataset]
+    (let [url (str (-> this :ckan-client-session :site) "package_create")]
+      (log/infof "Attempting to create a new dataset.")
+      (try
+        (let [api-key (:api-key this)]
+          (client/post url
+                       {:body "{\"json\": \"input\"}"
+                        :headers {"Authorization" api-key}
+                        :content-type :json
+                        :accept :json}))
+        (catch Throwable t
+          (log/errorf t "Could not get the names of the site's datasets")
           (throw t))))))
 
 (defn new-ckan-client-session [opts]
@@ -39,3 +62,13 @@
   "Return a list of the names of the site’s datasets (packages)."
   [session]
   (-package-list session))
+
+(defn package-show
+  "Get a dataset, resource or other object."
+  [session id]
+  (-package-show session id))
+
+(defn package-new
+  "Create a new dataset (package)."
+  [session dataset]
+  (-package-new session dataset))

@@ -4,3 +4,7 @@
 (defn get-all-datasets-names [system]
   (let [all-names (ckan/package-list (:ckan-client system))]
     (clojure.pprint/pprint (take 10 all-names))))
+
+(defn get-package-contents [system id]
+  (let [package (ckan/package-show (:ckan-client system) id)]
+    (clojure.pprint/pprint package)))
