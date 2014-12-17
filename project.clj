@@ -19,9 +19,10 @@
 
                  ;; data
                  [org.clojure/data.json      "0.2.5"]
+                 [cheshire                   "5.4.0"]
 
                  ;; logging
-                 [org.clojure/tools.logging "0.3.0"]]
+                 [org.clojure/tools.logging  "0.3.0"]]
 
   :uberjar-name "kixi.ckan.jar"
   :profiles {:dev {:source-paths ["dev"]}})

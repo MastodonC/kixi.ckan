@@ -11,4 +11,12 @@
 
 (defn get-resource-data [system id]
   (let [data (ckan/datastore-search (:ckan-client system) id)]
-    (clojure.pprint/pprint (take 10 data))))
+    (clojure.pprint/pprint (map (fn [[k v]] k) (first (get data "records"))))
+    ))
+
+(defn upsert-data-resource
+  "Takes system, resource id and clojure data structure and updates
+  CKAN datastore."
+  [system id resource]
+  (let [response (ckan/-datastore-upsert (:ckan-client system) id resource)]
+    (clojure.pprint/pprint "Reponse: " response)))

@@ -2,13 +2,15 @@
   (:require [clj-http.client :as client]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [kixi.ckan.data :as data]))
 
 (defprotocol ClientSession
   (-package-list [this])
   (-package-show [this id])
   (-package-new [this dataset])
-  (-datastore-search [this id]))
+  (-datastore-search [this id])
+  (-datastore-upsert [this id data]))
 
 (defrecord CkanClientSession [opts]
   component/Lifecycle
@@ -17,6 +19,7 @@
                                       :api-key (:api-key opts)}))
   (stop [this]
     (dissoc this :ckan-client-session))
+
   ClientSession
   (-package-list [this]
     (let [url (str (-> this :ckan-client-session :site) "package_list")]
@@ -39,19 +42,21 @@
                                      {:content-type :json
                                       :accept :json})
                          :body
-                         (json/read-str :key-fn keyword)
-                         :result)]
-          result))))
+                         (data/unparse))]
+          result)
+        (catch Throwable t
+          (log/errorf t "Could not get the metadata of the dataset with id %s" id)
+          (throw t)))))
   (-package-new [this dataset]
-    (let [url (str (-> this :ckan-client-session :site) "package_create")]
+    (let [url     (str (-> this :ckan-client-session :site) "package_create")
+          api-key (:api-key this)]
       (log/infof "Attempting to create a new dataset.")
       (try
-        (let [api-key (:api-key this)]
-          (client/post url
-                       {:body "{\"json\": \"input\"}"
-                        :headers {"Authorization" api-key}
-                        :content-type :json
-                        :accept :json}))
+        (client/post url
+                     {:body "{\"json\": \"input\"}"
+                      :headers {"Authorization" api-key}
+                      :content-type :json
+                      :accept :json})
         (catch Throwable t
           (log/errorf t "Could not get the names of the site's datasets")
           (throw t)))))
@@ -63,9 +68,27 @@
                                      {:content-type :json
                                       :accept :json})
                          :body
-                         (json/read-str :key-fn keyword)
-                         :result)]
-          result)))))
+                         (data/unparse))]
+          result)
+        (catch Throwable t
+          (log/errorf t "Could not get data from the datastore table with id: %s" id)
+          (throw t)))))
+  (-datastore-upsert [this id data]
+    (let [url      (str (-> this :ckan-client-session :site)
+                        "datastore_upsert?resource_id="id)
+          api-key  (:api-key this)]
+      (try
+        (let [result (-> (client/post url
+                                      {:content-type :json
+                                       :headers {"Authorization" api-key}
+                                       :params {:resource-id id
+                                                :method "update"}
+                                       :body (json/write-str data)
+                                       :accept :json}))]
+          result)
+        (catch Throwable t
+          (log/errorf t "Could not upsert data for resource with id: %s" id)
+          (throw t))))))
 
 (defn new-ckan-client-session [opts]
   (->CkanClientSession opts))
@@ -86,6 +109,11 @@
   (-package-new session dataset))
 
 (defn datastore-search
-  "Return data using Data API"
+  "Gets data from a table in the DataStore"
   [session id]
   (-datastore-search session id))
+
+(defn datastore-upsert
+  "Updates or inserts into a table in the DataStore"
+  [session id data]
+  (-datastore-upsert session id data))
