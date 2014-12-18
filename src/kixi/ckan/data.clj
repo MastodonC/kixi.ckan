@@ -1,4 +1,5 @@
 (ns kixi.ckan.data
+  "Functions to parse, unparse and transform data."
   (:require [cheshire.core :as json]
             [clojure.edn   :as edn]))
 

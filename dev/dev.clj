@@ -1,4 +1,5 @@
 (ns dev
+  "Contains various test data nd functions."
   (:require [kixi.ckan.core :as ckan]
             [kixi.ckan.data :as data]))
 
@@ -36,3 +37,9 @@
   CKAN resource to an existing dataset with given package_id."
   [system package_id resource]
   (let [response (ckan/-datastore-upsert (:ckan-client system) package_id resource)]))
+
+(defn create-new-package
+  [system]
+  (let [dataset (data/parse {:resource {:name "Kixibot test"
+                                        :author "Kixi"}})]
+    (ckan/package-new (:ckan-client system) dataset)))
