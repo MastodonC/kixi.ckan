@@ -83,7 +83,7 @@
                                        :headers {"Authorization" api-key}
                                        :params {:resource-id id
                                                 :method "update"}
-                                       :body (json/write-str data)
+                                       :body {"resource" data}
                                        :accept :json}))]
           result)
         (catch Throwable t
