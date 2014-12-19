@@ -2,13 +2,14 @@
   (:require [clj-http.client :as client]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
-            [clojure.data.json :as json]
+            [cheshire.core :as json]
             [kixi.ckan.data :as data]))
 
 (defprotocol ClientSession
   (-package-list [this])
   (-package-show [this id])
   (-package-new [this dataset])
+  (-resource-new [this package_id resource-metadata])
   (-datastore-search [this id])
   (-datastore-upsert [this id data])
   (-datastore-insert [this package_id data]))
@@ -30,12 +31,13 @@
                                      {:content-type :json
                                       :accept :json})
                          :body
-                         (json/read-str :key-fn keyword)
+                         (json/parse-string true)
                          :result)]
           result)
         (catch Throwable t
           (log/errorf t "Could not get the names of the site's datasets")
           (throw t)))))
+
   (-package-show [this id]
     (let [url (str "http://" (-> this :ckan-client-session :site) "package_show?id="id)]
       (try
@@ -48,21 +50,51 @@
         (catch Throwable t
           (log/errorf t "Could not get the metadata of the dataset with id %s" id)
           (throw t)))))
+
   (-package-new [this dataset]
-    (let [url     (str "https://" (-> this :ckan-client-session :site) "package_create")
-          api-key (:api-key this)]
-      (log/infof "Attempting to create a new dataset.")
+    (let [url     (str "http://" (-> this :ckan-client-session :site) "package_create")
+          api-key (-> this :ckan-client-session :api-key)]
+      (log/infof "Attempting to create a new dataset: %s" dataset)
       (try
-        (client/post url
-                     {:body dataset
-                      :headers {"Authorization" api-key}
-                      :content-type :json
-                      :accept :json})
+        (let [response (-> (client/post url
+                                        {:body dataset
+                                         :headers {"Authorization" api-key}
+                                         :content-type :json
+                                         :accept :json})
+                           :body
+                           (json/parse-string true))
+              success? (:success response)]
+          (when success?
+            (let [id (-> response :resource (json/parse-string true) :id)]
+              (log/infof "Package has been created successfully. ID: %s" id)
+              {:id id})))
         (catch Throwable t
-          (log/errorf t "Could not get the names of the site's datasets")
+          (log/errorf t "Failed to create a package.")
           (throw t)))))
+
+  (-resource-new [this package_id resource-metadata]
+    (let [url (str "http://" (-> this :ckan-client-session :site) "resource_create")
+          api-key (-> this :ckan-client-session :api-key)]
+      (log/infof "Attempting to create a new resource: %s" resource-metadata)
+      (try
+        (let [response (-> (client/post url
+                                        {:body resource-metadata
+                                         :headers {"Authorization" api-key}
+                                         :content-type :json
+                                         :accept :json})
+                           :body
+                           (json/parse-string true))
+              success? (:success response)]
+          (when success?
+            (let [id (-> response :resource (json/parse-string true) :id)]
+              (log/infof "Resource has been created successfully. ID: %s" id)
+              {:id id})))
+        (catch Throwable t
+          (log/errorf t "Failed to create a resource.")
+          (throw t)))))
+
   (-datastore-search [this id]
-    (let [url (str "https://"(-> this :ckan-client-session :site)
+    (let [url (str "http://"(-> this :ckan-client-session :site)
                    "datastore_search?resource_id="id)]
       (try
         (let [result (-> (client/get url
@@ -74,10 +106,11 @@
         (catch Throwable t
           (log/errorf t "Could not get data from the datastore table with id: %s" id)
           (throw t)))))
+
   (-datastore-upsert [this id data]
     (let [url      (str "https://"(-> this :ckan-client-session :site)
                         "datastore_upsert?resource_id="id)
-          api-key  (:api-key this)]
+          api-key  (-> this :ckan-client-session :api-key)]
       (try
         (let [result (-> (client/post url
                                       {:content-type :json
@@ -86,20 +119,24 @@
                                                 :method "update"}
                                        :body {"resource" data}
                                        :accept :json}))]
-          result)
+           result)
         (catch Throwable t
           (log/errorf t "Could not upsert data for resource with id: %s" id)
           (throw t)))))
+
   (-datastore-insert [this package_id data]
-    (let [url      (str "https://"(-> this :ckan-client-session :site)
-                        "datastore_upsert?resource_id=" package_id)
-          api-key  (:api-key this)]
+    (let [url      (str "http://"(-> this :ckan-client-session :site)
+                        "datastore_create")
+          api-key  (-> this :ckan-client-session :api-key)]
       (try
         (let [result (-> (client/post url
                                       {:content-type :json
                                        :headers {"Authorization" api-key}
                                        :body data
-                                       :accept :json}))]
+                                       :accept :json})
+                         :body
+                         (json/parse-string true)
+                         :success)]
           result)
         (catch Throwable t
           (log/errorf t "Could not insert a new resource to package with id: %s"
@@ -123,6 +160,11 @@
   "Create a new dataset (package)."
   [session dataset]
   (-package-new session dataset))
+
+(defn resource-new
+  "Create new resource belonging to a specified package."
+  [session package_id resource-metadata]
+  (-resource-new session package_id resource-metadata))
 
 (defn datastore-search
   "Gets data from a table in the DataStore"

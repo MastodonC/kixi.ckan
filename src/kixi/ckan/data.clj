@@ -42,7 +42,10 @@
 
 (defn create-new-resource
   "Transform and prepare data for inserting into DataStore."
-  [package_id data]
+  [package_id new-resource_id data]
   (let [transformed (-> (transform data)
-                        (assoc "package_id" package_id))]
+                        (assoc "package_id" package_id
+                               "resource_id" new-resource_id
+                               "method" "insert"
+                               "force" true))]
     (parse transformed)))
