@@ -85,10 +85,11 @@
                            :body
                            (json/parse-string true))
               success? (:success response)]
-          (when success?
+          (if success?
             (let [id (-> response :resource (json/parse-string true) :id)]
               (log/infof "Resource has been created successfully. ID: %s" id)
-              {:id id})))
+              {:id id})
+            (log/errorf "Failed to create a resource. Error: %s" (:error response))))
         (catch Throwable t
           (log/errorf t "Failed to create a resource.")
           (throw t)))))
