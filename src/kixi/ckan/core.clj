@@ -1,5 +1,6 @@
 (ns kixi.ckan.core
-  (:require [clj-http.client :as client]
+  (:require [slingshot.slingshot :refer [throw+ try+]]
+            [clj-http.client :as client]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
             [cheshire.core :as json]
@@ -40,15 +41,17 @@
 
   (-package-show [this id]
     (let [url (str "http://" (-> this :ckan-client-session :site) "package_show?id="id)]
-      (try
+      (try+
         (let [result (-> (client/get url
                                      {:content-type :json
                                       :accept :json})
                          :body
                          (data/unparse))]
           result)
+        (catch [:status 404] {:keys [request-time headers body]}
+          (log/warnf "Could not find a package with id: %s" id))
         (catch Throwable t
-          (log/errorf t "Could not get the metadata of the dataset with id %s" id)
+          (log/errorf t "Failed to get contents of a package.")
           (throw t)))))
 
   (-package-new [this dataset]
@@ -65,7 +68,7 @@
                            (json/parse-string true))
               success? (:success response)]
           (when success?
-            (let [id (-> response :resource (json/parse-string true) :id)]
+            (let [id (-> response :result :id)]
               (log/infof "Package has been created successfully. ID: %s" id)
               {:id id})))
         (catch Throwable t
@@ -86,7 +89,7 @@
                            (json/parse-string true))
               success? (:success response)]
           (if success?
-            (let [id (-> response :resource (json/parse-string true) :id)]
+            (let [id (-> response :result :id)]
               (log/infof "Resource has been created successfully. ID: %s" id)
               {:id id})
             (log/errorf "Failed to create a resource. Error: %s" (:error response))))
@@ -97,16 +100,14 @@
   (-datastore-search [this id]
     (let [url (str "http://"(-> this :ckan-client-session :site)
                    "datastore_search?resource_id="id)]
-      (try
-        (let [result (-> (client/get url
-                                     {:content-type :json
-                                      :accept :json})
-                         :body
-                         (data/unparse))]
-          result)
-        (catch Throwable t
-          (log/errorf t "Could not get data from the datastore table with id: %s" id)
-          (throw t)))))
+      (try+
+       (let [result (client/get url {:content-type :json :accept :json})]
+         (-> result :body data/unparse))
+       (catch [:status 404] {:keys [request-time headers body]}
+         (log/warnf "Could not find a resource with id: %s" id))
+       (catch Object _
+         (log/error (:throwable &throw-context) "unexpected error")
+         (throw+)))))
 
   (-datastore-upsert [this id data]
     (let [url      (str "https://"(-> this :ckan-client-session :site)

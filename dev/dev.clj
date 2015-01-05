@@ -37,9 +37,9 @@
 
 (defn create-new-package
   [system]
-  (let [dataset (data/parse {:owner_org "hscic"
-                             :title "testing_transformation"
-                             :name "transformation_test"
+  (let [dataset (data/parse {:owner_org "kixi"
+                             :title "testing_transformation_kixi"
+                             :name "transformation_test_kixi_5"
                              :author "Kixi"
                              :notes "Testing Clojure CKAN client: transformation of existing data and creation of new datasets."})]
     (ckan/package-new (:ckan-client system) dataset)))

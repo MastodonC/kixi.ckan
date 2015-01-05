@@ -10,6 +10,8 @@
 
                  ;; http
                  [clj-http                   "1.0.1"]
+                 ;; Process clj-http Slingshot Stones
+                 [slingshot                  "0.12.1"]
 
                  ;; component
                  [juxt/modular "0.2.0" :exclusions [ch.qos.logback/logback-classic
