@@ -76,6 +76,23 @@
                          (hash-map (:resource_id data) (:observed_percentage data)
                                    :ccg (:ccg data)))) indexed)))))
 
+;; (count (dev/combine-multiple-datasets system "7a69bc84-fffd-4750-b22b-fc66a5ea0728" "0e73fe0d-0b16-4270-9026-f8fd8a75e684" "7381b851-7a50-4b8c-b64e-155eadbe5694"))
 (defn combine-multiple-datasets [system & ids]
   (->> (get-and-transform-multiple-datasets system ids)
-       (outer-join :ccg)))
+       (outer-join :ccg)
+       (into [])))
+
+(defn combine-and-store-multiple-datasets [system]
+  (let [new-dataset        (data/parse {:owner_org "kixi"
+                                        :title "testing_combining_multiple_datasets"
+                                        :name (str "combined_muliple_datasets" "_" (quot (System/currentTimeMillis) 1000))
+                                        :author "Kixi"
+                                        :notes "Testing Clojure CKAN client: combining multiple datasets into one."})
+        new-package_id     (:id (ckan/package-new (:ckan-client system) new-dataset))
+        new-resource       (data/parse {:package_id new-package_id
+                                        :url "foo"
+                                        :description "Combined datasets."})
+        new-resource_id    (:id (ckan/resource-new (:ckan-client system) new-package_id new-resource))
+        resource-to-store  (combine-multiple-datasets system "7a69bc84-fffd-4750-b22b-fc66a5ea0728" "0e73fe0d-0b16-4270-9026-f8fd8a75e684" "7381b851-7a50-4b8c-b64e-155eadbe5694")
+        data               (data/create-new-resource new-package_id new-resource_id {"records" resource-to-store})]
+    (ckan/datastore-insert (:ckan-client system) new-package_id data)))
