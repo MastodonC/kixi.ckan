@@ -1,4 +1,5 @@
 (ns kixi.ckan.core
+  "Component that maintains communication with CKAN."
   (:require [slingshot.slingshot :refer [throw+ try+]]
             [clj-http.client :as client]
             [com.stuartsierra.component :as component]
