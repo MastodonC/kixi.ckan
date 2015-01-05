@@ -862,3 +862,49 @@ java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Numbe
 2015-01-05 14:34:30.686 [nREPL-worker-5] INFO   kixi.ckan.data - Retrieving with offset 800
 2015-01-05 14:34:30.870 [nREPL-worker-5] INFO   kixi.ckan.data - Retrieving with offset 900
 2015-01-05 14:34:31.058 [nREPL-worker-5] INFO   kixi.ckan.data - Retrieving with offset 1000
+2015-01-05 14:38:44.084 [nREPL-worker-1] INFO   pipeline - Pipeline starting
+2015-01-05 14:38:44.113 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Using default implementation for ThreadExecutor
+2015-01-05 14:38:44.115 [nREPL-worker-1] INFO   org.quartz.simpl.SimpleThreadPool - Job execution threads will use class loader of thread: nREPL-worker-1
+2015-01-05 14:38:44.126 [nREPL-worker-1] INFO   o.quartz.core.SchedulerSignalerImpl - Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2015-01-05 14:38:44.127 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Quartz Scheduler v.2.1.7 created.
+2015-01-05 14:38:44.128 [nREPL-worker-1] INFO   org.quartz.simpl.RAMJobStore - RAMJobStore initialized.
+2015-01-05 14:38:44.128 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Scheduler meta-data: Quartz Scheduler (v2.1.7) 'DefaultQuartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 1 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2015-01-05 14:38:44.128 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Quartz scheduler 'DefaultQuartzScheduler' initialized from default resource file in Quartz package: 'quartz.properties'
+2015-01-05 14:38:44.128 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Quartz scheduler version: 2.1.7
+2015-01-05 14:38:44.129 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Scheduler DefaultQuartzScheduler_$_NON_CLUSTERED started.
+2015-01-05 14:39:44.811 [nREPL-worker-1] INFO   pipeline - Pipeline starting
+2015-01-05 14:39:44.849 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Using default implementation for ThreadExecutor
+2015-01-05 14:39:44.852 [nREPL-worker-1] INFO   org.quartz.simpl.SimpleThreadPool - Job execution threads will use class loader of thread: nREPL-worker-1
+2015-01-05 14:39:44.863 [nREPL-worker-1] INFO   o.quartz.core.SchedulerSignalerImpl - Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2015-01-05 14:39:44.864 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Quartz Scheduler v.2.1.7 created.
+2015-01-05 14:39:44.865 [nREPL-worker-1] INFO   org.quartz.simpl.RAMJobStore - RAMJobStore initialized.
+2015-01-05 14:39:44.866 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Scheduler meta-data: Quartz Scheduler (v2.1.7) 'DefaultQuartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 1 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2015-01-05 14:39:44.866 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Quartz scheduler 'DefaultQuartzScheduler' initialized from default resource file in Quartz package: 'quartz.properties'
+2015-01-05 14:39:44.866 [nREPL-worker-1] INFO   org.quartz.impl.StdSchedulerFactory - Quartz scheduler version: 2.1.7
+2015-01-05 14:39:44.866 [nREPL-worker-1] INFO   org.quartz.core.QuartzScheduler - Scheduler DefaultQuartzScheduler_$_NON_CLUSTERED started.
+2015-01-05 14:40:22.180 [nREPL-worker-1] INFO   kixi.ckan - Starting search of resource 1953473e-1584-495b-9934-80cd45b37168
+2015-01-05 14:40:22.181 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 0
+2015-01-05 14:40:22.493 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 100
+2015-01-05 14:40:22.696 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 200
+2015-01-05 14:40:22.886 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 300
+2015-01-05 14:40:23.075 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 400
+2015-01-05 14:40:23.252 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 500
+2015-01-05 14:40:23.437 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 600
+2015-01-05 14:40:23.630 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 700
+2015-01-05 14:40:23.789 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 800
+2015-01-05 14:40:23.948 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 900
+2015-01-05 14:40:24.112 [nREPL-worker-1] INFO   kixi.ckan.data - Retrieving with offset 1000

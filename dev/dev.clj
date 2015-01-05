@@ -1,6 +1,6 @@
 (ns dev
   "Collection of functons to test CKAN connectivity and data munging."
-  (:require [kixi.ckan.core :as ckan]
+  (:require [kixi.ckan :as ckan]
             [kixi.ckan.data :as data]
             [clojure.tools.logging :as log]))
 

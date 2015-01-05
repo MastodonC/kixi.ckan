@@ -1,4 +1,4 @@
-(ns kixi.ckan.core
+(ns kixi.ckan
   "Component that maintains communication with CKAN."
   (:require [slingshot.slingshot :refer [throw+ try+]]
             [clj-http.client :as client]
@@ -102,7 +102,7 @@
     (let [site-url (-> this :ckan-client-session :site)]
       (log/infof "Starting search of resource %s" id)
       (try+
-       (count (data/page-results site-url id 0))
+       (data/page-results site-url id 0)
        (catch [:status 404] {:keys [request-time headers body]}
          (log/warnf "Could not find a resource with id: %s" id))
        (catch Object _

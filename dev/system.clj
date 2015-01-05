@@ -1,5 +1,5 @@
 (ns system
-  (:require [kixi.ckan.core :refer (new-ckan-client-session)]
+  (:require [kixi.ckan :refer (new-ckan-client-session)]
             [com.stuartsierra.component :as component]
             [modular.core :as mod]
             [clojure.tools.logging :as log]
