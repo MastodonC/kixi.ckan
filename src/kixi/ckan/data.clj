@@ -66,4 +66,4 @@
         next-page (+ offset 100)]
     (lazy-cat
      (get unparsed "records")
-     (when (< next-page total) (page-results site-url resource_id next-page)))))
+     (when (<= next-page total) (page-results site-url resource_id next-page)))))
