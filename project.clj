@@ -14,10 +14,7 @@
                  [slingshot                  "0.12.1"]
 
                  ;; component
-                 [juxt/modular "0.2.0" :exclusions [ch.qos.logback/logback-classic
-                                                    org.slf4j/jcl-over-slf4j
-                                                    org.slf4j/jul-to-slf4j
-                                                    org.slf4j/log4j-over-slf4j]]
+                 [juxt/modular "0.2.0"]
 
                  [kixi/pipe                  "0.17.12"]
 

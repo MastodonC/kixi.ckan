@@ -1,7 +1,10 @@
 (ns kixi.ckan.data
   "Functions to parse, unparse and transform data."
-  (:require [cheshire.core :as json]
-            [clojure.edn   :as edn]))
+  (:require [slingshot.slingshot :refer [throw+ try+]]
+            [cheshire.core :as json]
+            [clojure.edn   :as edn]
+            [clj-http.client :as client]
+            [clojure.tools.logging :as log]))
 
 (defn unparse
   "Takes DataStore data represented as JSON and turns it to clojure data structure."
@@ -51,3 +54,16 @@
                                "method" "insert"
                                "force" true))]
     (parse transformed)))
+
+(defn page-results
+  "Retrieve all pages of a given resource data as a lazy sequence."
+  [site-url resource_id offset]
+  (log/infof "Retrieving with offset %s" offset)
+  (let [url       (str "http://" site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
+        result    (client/get url {:content-type :json :accept :json})
+        unparsed  (-> result :body unparse)
+        total     (get unparsed "total")
+        next-page (+ offset 100)]
+    (lazy-cat
+     (get unparsed "records")
+     (when (< next-page total) (page-results site-url resource_id next-page)))))

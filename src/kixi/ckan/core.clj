@@ -99,11 +99,10 @@
           (throw t)))))
 
   (-datastore-search [this id]
-    (let [url (str "http://"(-> this :ckan-client-session :site)
-                   "datastore_search?resource_id="id)]
+    (let [site-url (-> this :ckan-client-session :site)]
+      (log/infof "Starting search of resource %s" id)
       (try+
-       (let [result (client/get url {:content-type :json :accept :json})]
-         (-> result :body data/unparse))
+       (count (data/page-results site-url id 0))
        (catch [:status 404] {:keys [request-time headers body]}
          (log/warnf "Could not find a resource with id: %s" id))
        (catch Object _
