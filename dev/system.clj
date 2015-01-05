@@ -1,12 +1,15 @@
 (ns system
   (:require [kixi.ckan.core :refer (new-ckan-client-session)]
             [com.stuartsierra.component :as component]
+            [modular.core :as mod]
             [clojure.tools.logging :as log]
             clojure.tools.reader
             [clojure.pprint :refer (pprint)]
             [clojure.tools.reader.reader-types :refer (indexing-push-back-reader
                                                        source-logging-push-back-reader)]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [kixipipe.scheduler]
+            [pipeline :refer (new-pipeline)]))
 
 (defn combine
   "Merge maps, recursively merging nested maps whose keys collide."
@@ -37,4 +40,8 @@
 (defn new-system []
   (let [cfg (config)]
     (-> (component/system-map
-         :ckan-client (new-ckan-client-session (:ckan-client cfg))))))
+         :ckan-client (new-ckan-client-session (:ckan-client cfg))
+         :pipeline (new-pipeline)
+         :scheduler   (kixipipe.scheduler/mk-session cfg))
+        (mod/system-using
+         {:scheduler [:pipeline]}))))

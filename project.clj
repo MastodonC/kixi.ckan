@@ -19,6 +19,8 @@
                                                     org.slf4j/jul-to-slf4j
                                                     org.slf4j/log4j-over-slf4j]]
 
+                 [kixi/pipe                  "0.17.12"]
+
                  ;; data
                  [org.clojure/data.json      "0.2.5"]
                  [cheshire                   "5.4.0"]
