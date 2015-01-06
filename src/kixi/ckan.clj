@@ -27,7 +27,6 @@
   ClientSession
   (-package-list [this]
     (let [url (str "http://" (-> this :ckan-client-session :site) "package_list")]
-      (log/infof "Attempting to retrieve package list from url: %s" url)
       (try
         (let [result (-> (client/get url
                                      {:content-type :json
@@ -58,7 +57,6 @@
   (-package-new [this dataset]
     (let [url     (str "http://" (-> this :ckan-client-session :site) "package_create")
           api-key (-> this :ckan-client-session :api-key)]
-      (log/infof "Attempting to create a new dataset: %s" dataset)
       (try
         (let [response (-> (client/post url
                                         {:body dataset
@@ -79,7 +77,6 @@
   (-resource-new [this package_id resource-metadata]
     (let [url (str "http://" (-> this :ckan-client-session :site) "resource_create")
           api-key (-> this :ckan-client-session :api-key)]
-      (log/infof "Attempting to create a new resource: %s" resource-metadata)
       (try
         (let [response (-> (client/post url
                                         {:body resource-metadata
@@ -100,14 +97,13 @@
 
   (-datastore-search [this id]
     (let [site-url (-> this :ckan-client-session :site)]
-      (log/infof "Starting search of resource %s" id)
       (try+
        (data/page-results site-url id 0)
        (catch [:status 404] {:keys [request-time headers body]}
          (log/warnf "Could not find a resource with id: %s" id))
-       (catch Object _
-         (log/error (:throwable &throw-context) "unexpected error")
-         (throw+)))))
+       (catch Throwable t
+         (log/errorf "Failed to search for a resource with id: %s" id)
+         (throw t)))))
 
   (-datastore-upsert [this id data]
     (let [url      (str "https://"(-> this :ckan-client-session :site)
