@@ -1,9 +1,9 @@
 (ns kixi.ckan.data
   "Functions to parse, unparse and transform data."
-  (:require [slingshot.slingshot :refer [throw+ try+]]
-            [cheshire.core :as json]
-            [clojure.edn   :as edn]
-            [clj-http.client :as client]
+  (:require [slingshot.slingshot   :refer [throw+ try+]]
+            [cheshire.core         :as json]
+            [clojure.edn           :as edn]
+            [clj-http.client       :as client]
             [clojure.tools.logging :as log]))
 
 (defn unparse
@@ -23,7 +23,7 @@
                   (hash-map (get field "id")
                             (get field "type"))) fields)))
 
-(defn create-new-resource
+(defn prepare-resource-for-insert
   "Transform and prepare data for inserting into DataStore."
   [package_id new-resource_id data]
   (let [transformed (assoc data "package_id" package_id

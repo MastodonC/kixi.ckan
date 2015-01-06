@@ -120,13 +120,12 @@
                            :body
                            (json/parse-string true))
               success? (:success response)]
-          (if success?
+          (when success?
             (let [id (-> response :result :id)]
               (log/infof "Resource has been created successfully. ID: %s" id)
-              {:id id})
-            (log/errorf "Failed to create a resource. Error: %s" (:error response))))
+              {:id id})))
         (catch Throwable t
-          (log/errorf t "Failed to create a resource.")
+          (log/error t "Failed to create a resource.")
           (throw t)))))
 
   (-resource-delete [this resource_id]
@@ -179,15 +178,13 @@
                         "datastore_create")
           api-key  (-> this :ckan-client-session :api-key)]
       (try
-        (let [result (-> (client/post url
-                                      {:content-type :json
-                                       :headers {"Authorization" api-key}
-                                       :body data
-                                       :accept :json})
-                         :body
-                         (json/parse-string true)
-                         :success)]
-          result)
+        (-> (client/post url
+                         {:content-type :json
+                          :headers {"Authorization" api-key}
+                          :body data
+                          :accept :json})
+            :body
+            (json/parse-string true))
         (catch Throwable t
           (log/errorf t "Could not insert a new resource to package with id: %s"
                       package_id)
