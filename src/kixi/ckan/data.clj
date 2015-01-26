@@ -10,8 +10,8 @@
   "Takes DataStore data represented as JSON and turns it to clojure data structure."
   [data]
   (let [data-edn (-> data
-                     (json/parse-string)
-                     (get "result"))]
+                     (json/parse-string true)
+                     (get :result))]
     (->> (apply concat data-edn)
          (apply hash-map))))
 
@@ -39,8 +39,11 @@
   (let [url       (str "http://" site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
         result    (client/get url {:content-type :json :accept :json})
         unparsed  (-> result :body unparse)
-        total     (get unparsed "total")
+        total     (get unparsed :total)
         next-page (+ offset 100)]
      (lazy-cat
-      (get unparsed "records")
-      (when (< next-page total) (page-results site-url resource_id next-page)))))
+      (get unparsed :records)
+      (try
+        (when (< next-page total)
+          (page-results site-url resource_id next-page))
+        (catch Exception e (.getMessage e) (println "Help, an exception!"))))))
