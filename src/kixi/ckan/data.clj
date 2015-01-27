@@ -53,7 +53,5 @@
         next-page (+ offset 100)]
      (lazy-cat
       (get unparsed :records)
-      (try
-        (when (< next-page total)
-          (page-results site-url resource_id next-page))
-        (catch Exception e (.getMessage e) (println "Help, an exception!"))))))
+      (when (< next-page total)
+        (page-results site-url resource_id next-page)))))
