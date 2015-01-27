@@ -6,11 +6,21 @@
             [clj-http.client       :as client]
             [clojure.tools.logging :as log]))
 
+(defn fix-map-key
+  "Takes string keys and format them before they
+  get turned into keywords."
+  [keys-string]
+  (-> keys-string
+      (clojure.string/lower-case)
+      (clojure.string/replace #"[ \n]" "_")
+      (clojure.string/replace #"[^A-Za-z0-9-_]" "")))
+
 (defn unparse
   "Takes DataStore data represented as JSON and turns it to clojure data structure."
   [data]
   (let [data-edn (-> data
-                     (json/parse-string true)
+                     (json/parse-string
+                      (fn [k] (keyword (fix-map-key k))))
                      (get :result))]
     (->> (apply concat data-edn)
          (apply hash-map))))
