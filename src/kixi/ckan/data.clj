@@ -49,7 +49,7 @@
   (let [url       (str "http://" site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
         result    (client/get url {:content-type :json :accept :json})
         unparsed  (-> result :body unparse)
-        total     (get unparsed :total)
+        total     (:total unparsed)
         next-page (+ offset 100)]
      (lazy-cat
       (get unparsed :records)
