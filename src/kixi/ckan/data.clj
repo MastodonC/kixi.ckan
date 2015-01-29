@@ -6,12 +6,22 @@
             [clj-http.client       :as client]
             [clojure.tools.logging :as log]))
 
+(defn fix-map-key
+  "Takes string keys and format them before they
+  get turned into keywords."
+  [keys-string]
+  (-> keys-string
+      (clojure.string/lower-case)
+      (clojure.string/replace #"[ \n]" "_")
+      (clojure.string/replace #"[^A-Za-z0-9-_]" "")))
+
 (defn unparse
   "Takes DataStore data represented as JSON and turns it to clojure data structure."
   [data]
   (let [data-edn (-> data
-                     (json/parse-string)
-                     (get "result"))]
+                     (json/parse-string
+                      (fn [k] (keyword (fix-map-key k))))
+                     (get :result))]
     (->> (apply concat data-edn)
          (apply hash-map))))
 
@@ -39,8 +49,9 @@
   (let [url       (str "http://" site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
         result    (client/get url {:content-type :json :accept :json})
         unparsed  (-> result :body unparse)
-        total     (get unparsed "total")
+        total     (:total unparsed)
         next-page (+ offset 100)]
      (lazy-cat
-      (get unparsed "records")
-      (when (< next-page total) (page-results site-url resource_id next-page)))))
+      (get unparsed :records)
+      (when (< next-page total)
+        (page-results site-url resource_id next-page)))))
