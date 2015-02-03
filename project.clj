@@ -1,4 +1,4 @@
-(defproject kixi/ckan "0.1.1-SNAPSHOT"
+(defproject kixi/ckan "0.1.2"
   :description "Clojure client for the CKAN API."
   :url "https://github.com/MastodonC/kixi.ckan"
   :license {:name "Eclipse Public License"
