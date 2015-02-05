@@ -46,7 +46,7 @@
   "Retrieve all pages of records of a given resource as a lazy sequence.
   Uses the default offset of 100 that is used by CKAN."
   [site-url resource_id offset]
-  (let [url       (str "http://" site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
+  (let [url       (str site-url "datastore_search?offset=" offset "&resource_id=" resource_id)
         result    (client/get url {:content-type :json :accept :json})
         unparsed  (-> result :body unparse)
         total     (:total unparsed)

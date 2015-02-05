@@ -7,6 +7,12 @@
             [cheshire.core :as json]
             [kixi.ckan.data :as data]))
 
+(defn get-url
+  "Build url string by joining site url stored in config with
+  api method and params."
+  [ckan-client & api-method]
+  (apply str (-> ckan-client :ckan-client-session :site) api-method))
+
 (defprotocol ClientSession
   (-package-list [this])
   (-package-list-with-resources [this])
@@ -36,7 +42,7 @@
   ClientSession
 
   (-package-list [this]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "package_list")]
+    (let [url (get-url this "package_list")]
       (try
         (-> (client/get url
                         {:content-type :json
@@ -48,7 +54,7 @@
           (throw t)))))
 
   (-package-list-with-resources [this]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "current_package_list_with_resources")]
+    (let [url (get-url this "current_package_list_with_resources")]
       (try
         (-> (client/get url
                         {:content-type :json
@@ -60,7 +66,7 @@
           (throw t)))))
 
   (-package-show [this id]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "package_show?id="id)]
+    (let [url (get-url this "package_show?id=" id)]
       (try+
         (-> (client/get url
                         {:content-type :json
@@ -74,7 +80,7 @@
           (throw t)))))
 
   (-package-create [this dataset]
-    (let [url     (str "http://" (-> this :ckan-client-session :site) "package_create")
+    (let [url     (get-url this "package_create")
           api-key (-> this :ckan-client-session :api-key)]
       (try
         (let [response (-> (client/post url
@@ -94,7 +100,7 @@
           (throw t)))))
 
   (-resource-show [this resource_id]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "resource_show?id=" resource_id)]
+    (let [url (get-url this "resource_show?id=" resource_id)]
       (try+
         (let [result (-> (client/get url
                                      {:content-type :json
@@ -109,7 +115,7 @@
           (throw t)))))
 
   (-resource-create [this package_id resource-metadata]
-    (let [url     (str "http://" (-> this :ckan-client-session :site) "resource_create")
+    (let [url     (get-url this "resource_create")
           api-key (-> this :ckan-client-session :api-key)]
       (try
         (let [response (-> (client/post url
@@ -129,7 +135,7 @@
           (throw t)))))
 
   (-resource-delete [this resource_id]
-    (let [url     (str "http://" (-> this :ckan-client-session :site) "resource_delete?id=" resource_id)
+    (let [url     (get-url this "resource_delete?id=" resource_id)
           api-key (-> this :ckan-client-session :api-key)]
       (try
         (let [response (-> (client/post url
@@ -147,7 +153,7 @@
           (throw t)))))
 
   (-datastore-search [this id]
-    (let [site-url (-> this :ckan-client-session :site)]
+    (let [site-url (get-url this)]
       (try+
        (data/page-results site-url id 0)
        (catch [:status 404] {:keys [request-time headers body]}
@@ -157,8 +163,7 @@
          (throw t)))))
 
   (-datastore-upsert [this id data]
-    (let [url      (str "http://" (-> this :ckan-client-session :site)
-                        "datastore_upsert?resource_id="id)
+    (let [url      (get-url this "datastore_upsert?resource_id=" id)
           api-key  (-> this :ckan-client-session :api-key)]
       (try
         (-> (client/post url
@@ -173,8 +178,7 @@
           (throw t)))))
 
   (-datastore-insert [this package_id data]
-    (let [url      (str "http://" (-> this :ckan-client-session :site)
-                        "datastore_create")
+    (let [url      (get-url this "datastore_create")
           api-key  (-> this :ckan-client-session :api-key)]
       (try
         (-> (client/post url
@@ -190,7 +194,7 @@
           (throw t)))))
 
   (-organization-show [this id]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "organization_show?id=" id)]
+    (let [url (get-url this "organization_show?id=" id)]
       (try+
         (-> (client/get url
                         {:content-type :json
@@ -204,7 +208,7 @@
           (throw t)))))
 
   (-tag-show [this id]
-    (let [url (str "http://" (-> this :ckan-client-session :site) "tag_show?id=" id)]
+    (let [url (get-url this "tag_show?id=" id)]
       (try+
         (-> (client/get url
                         {:content-type :json
