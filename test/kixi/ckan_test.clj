@@ -1,4 +1,4 @@
-(ns kixi.ckan.ckan-test
+(ns kixi.ckan-test
   (:require [clojure.test :refer :all]
             [kixi.ckan :refer :all]))
 
