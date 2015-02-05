@@ -157,24 +157,23 @@
          (throw t)))))
 
   (-datastore-upsert [this id data]
-    (let [url      (str "https://"(-> this :ckan-client-session :site)
+    (let [url      (str "http://" (-> this :ckan-client-session :site)
                         "datastore_upsert?resource_id="id)
           api-key  (-> this :ckan-client-session :api-key)]
       (try
-        (let [result (-> (client/post url
-                                      {:content-type :json
-                                       :headers {"Authorization" api-key}
-                                       :params {:resource-id id
-                                                :method "update"}
-                                       :body {"resource" data}
-                                       :accept :json}))]
-           result)
+        (-> (client/post url
+                         {:content-type :json
+                          :headers {"Authorization" api-key}
+                          :body data
+                          :accept :json})
+            :body
+            (json/parse-string true))
         (catch Throwable t
           (log/errorf t "Could not upsert data for resource with id: %s" id)
           (throw t)))))
 
   (-datastore-insert [this package_id data]
-    (let [url      (str "http://"(-> this :ckan-client-session :site)
+    (let [url      (str "http://" (-> this :ckan-client-session :site)
                         "datastore_create")
           api-key  (-> this :ckan-client-session :api-key)]
       (try
