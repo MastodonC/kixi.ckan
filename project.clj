@@ -1,4 +1,4 @@
-(defproject kixi/ckan "0.1.2"
+(defproject kixi/ckan "0.1.3-SNAPSHOT"
   :description "Clojure client for the CKAN API."
   :url "https://github.com/MastodonC/kixi.ckan"
   :license {:name "Eclipse Public License"
@@ -21,5 +21,7 @@
 
                  ;; logging
                  [org.clojure/tools.logging  "0.3.0"]]
+
+  :repositories [["releases" {:url "https://clojars.org/repo" :username :env/clojars_username :password :env/clojars_password}]]
 
   :uberjar-name "kixi.ckan.jar")
